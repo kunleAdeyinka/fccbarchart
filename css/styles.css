@@ -1,0 +1,32 @@
+body, a{
+  margin: 0px;
+  font: 11px sans-serif;
+  color: steelblue;
+      background-color: #EFEFEF;
+}
+p {
+  margin: 10px 30px;
+}
+.chart text {
+  fill: black;
+  font: 14px sans-serif;
+  text-anchor: end;
+}
+.axis text {
+  font: 10px sans-serif;
+}
+.x text {
+  text-anchor: middle;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+.title text {
+  font: 35px sans-serif;
+  stroke: steelblue;
+  fill: steelblue;
+  text-anchor: middle;
+}

@@ -1,0 +1,102 @@
+<html>
+      <head>
+        <title>D3 GDP Bar Chart</title>
+        <link rel="stylesheet" href="https://bootswatch.com/readable/bootstrap.min.css">
+        <link rel="stylesheet" href="css/styles.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.3.0/d3.min.js" charset="utf-8"></script>
+      <head>
+      <body>
+            <div class="navbar-header text-center">
+                <a href="../" class="navbar-brand">Visualize Data with a Bar Chart</a>
+
+            </div>
+            <svg class="chart"></svg>
+            <p>
+              Units: Billions of Dollars<br>
+              Seasonal Adjustment: Seasonally Adjusted Annual Rate<br>
+              Notes: A Guide to the National Income and Product Accounts of the United States (NIPA) -
+              (<a href="http://www.bea.gov/national/pdf/nipaguid.pdf">http://www.bea.gov/national/pdf/nipaguid.pdf</a>)
+            </p>
+
+          <script type="text/javascript">
+              d3.json("https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/GDP-data.json",
+                function(err, json){
+
+                  var margin = {top: 60, right: 20, bottom: 30, left: 60};
+                  var width = window.innerWidth - margin.left - margin.right;
+                  var height = window.innerHeight - margin.top - margin.bottom - 75;
+                  var barWidth = width / json.data.length;
+
+                  var formatID = d3.timeFormat("%Y-%B");
+                  var formatDt = d3.timeFormat("%Y - %B");
+
+                  var xScale = d3.scaleTime()
+                                 .domain([
+                                   d3.min(json.data.map(function(d){return new Date(d[0])})),
+                                   d3.max(json.data.map(function(d){return new Date(d[0])}))
+                                 ]).range([0,width]);
+                  var xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat("%Y")).ticks(d3.timeYear.every(5));
+
+
+                  var yScale = d3.scaleLinear().domain([0, d3.max(json.data, function(a){return a[1];})]).range([height, 0]);
+                  var yAxis = d3.axisLeft(yScale);
+
+                  var chart = d3.select(".chart")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                                .append("g")
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+                  var bar = chart.selectAll("g")
+                                 .data(json.data)
+                                 .enter()
+                                 .append("g")
+                                 .attr("transform", function(d, i){return "translate(" + i * barWidth + ", 0)"})
+                                 .on("mouseover", function(d,i){
+                                   d3.select(this).select("rect").attr("fill", "lightsteelblue")
+                                   d3.select(this).append("text")
+                                                  .attr("id", function() { return "t1-" + formatID( new Date(d[0]) ) })
+                                                  .attr("x", function(d, i){ return i * barWidth} )
+                                                  .attr("y", function(d){ return yScale(d[1]) - 35} )
+                                                  .text(function() { return '$' + addCommas(d[1]) + ' Billion' })
+                                    d3.select(this).append("text")
+                                                   .attr("id", function() { return "t2-" + formatID( new Date(d[0]) ) })
+                                                   .attr("x", function(d, i){ return i * barWidth} )
+                                                   .attr("y", function(d){ return yScale(d[1]) - 20} )
+                                                   .text(function() { return formatDt( new Date(d[0]) ) })
+                                 })
+                                 .on("mouseout", function(d, i) {
+                                      d3.select(this).select("rect").attr("fill", "steelblue")
+                                      d3.select(this).select("#t1-" + formatID( new Date(d[0]) )).remove()
+                                      d3.select(this).select("#t2-" + formatID( new Date(d[0]) )).remove()
+                                 })
+                                 .append("rect")
+                                 .attr("y", function(d){ return yScale(d[1]); })
+                                 .attr("height", function(d) { return height - yScale(d[1]); })
+                                 .attr("width", barWidth)
+                                 .attr("fill", "steelblue")
+                                 .attr("stroke", "steelblue");
+
+                  chart.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
+                  chart.append("g").attr("class", "y axis").call(yAxis);
+                  chart.append("g").append("text").attr("y", 20).attr("transform", "rotate(-90)").text("GDP, USA");
+                  chart.append("g").attr("class", "title").append("text").attr("x", width * 2 / 5).text("Gross Domestic Product");
+
+                  function addCommas(n) {
+                    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                  }
+              });
+          </script>
+
+          <footer>
+            <div class="row">
+              <div class="col-lg-12">
+                <p class="text-center">Made by Kunle Adeyinka. </span></p>
+              </div>
+            </div>
+
+          </footer>
+
+      </body>
+</html>
